@@ -1,6 +1,8 @@
 package com.example.tetrisapp.ui.components
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
@@ -8,8 +10,11 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import com.example.tetrisapp.models.Piece
+import com.example.tetrisapp.ui.activities.GameOverActivity
+import com.example.tetrisapp.ui.activities.MainActivity
 
 class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+    
     private val rows = 20
     private val cols = 10
     private var cellWidth: Float = 0f
@@ -31,27 +36,6 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         repeat(rows) {
             add(ArrayList(IntArray(cols) { 0 }.toList()))
         }
-
-//        add(arrayListOf(1,0,0,0,0,1,0,0,0,1))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(1,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(1,0,1,1,0,0,0,1,0,0))
-//        add(arrayListOf(1,0,1,1,1,0,1,1,1,0))
-//        add(arrayListOf(1,0,0,0,0,1,0,0,0,1))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(0,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(1,0,0,0,0,0,0,0,0,0))
-//        add(arrayListOf(1,0,1,1,0,0,0,1,0,0))
-//        add(arrayListOf(1,0,1,1,1,0,1,1,1,0))
     }
 
     private val paint = Paint().apply {
@@ -245,7 +229,9 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         val newPiece = Piece(randomShape)
         if (!canPlacePiece(newPiece)) {
 
-            Log.d("BoardLog", "Game Over")
+            val intent = Intent(context, GameOverActivity::class.java)
+            intent.putExtra("score", (level * 100) + score)
+            context.startActivity(intent)
             return
         }
         currentPiece = newPiece
@@ -316,14 +302,33 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     }
 
+     fun restart(){
+        matriz = arrayListOf<ArrayList<Int>>().apply {
+            repeat(rows) {
+                add(ArrayList(IntArray(cols) { 0 }.toList()))
+            }
+        }
+        generateCurrentPiece()
+        score = 0
+        level = 1
+        speed = 400
+        scoreUpdateListener?.onScoreUpdated(score)
+        levelUpdateListener?.onLevelUpdated(level)
+        invalidate()
+
+    }
+
+    fun goToGameOverScreen(){
+        val intent = Intent(context, GameOverActivity::class.java)
+        intent.putExtra("score", (level * 100) + score)
+        context.startActivity(intent)
+
+    }
+
     interface OnScoreUpdateListener{
         fun onScoreUpdated(score: Long)
     }
     interface OnLevelUpdateListener{
         fun onLevelUpdated(level: Int)
     }
-
-
-
-
 }

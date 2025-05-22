@@ -48,7 +48,12 @@ class MainActivity : AppCompatActivity(), OnScoreUpdateListener, OnLevelUpdateLi
         binding.btnDrop.setOnClickListener {
             binding.boardComponent.drop()
         }
-
+        binding.btnRestart.setOnClickListener {
+            binding.boardComponent.restart()
+        }
+        binding.btnExit.setOnClickListener {
+            binding.boardComponent.goToGameOverScreen()
+        }
     }
 
     override fun onScoreUpdated(score: Long) {

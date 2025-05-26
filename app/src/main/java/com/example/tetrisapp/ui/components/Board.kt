@@ -28,6 +28,7 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     var scoreUpdateListener: OnScoreUpdateListener? = null
     var levelUpdateListener: OnLevelUpdateListener? = null
     var level: Int = 1
+    private var isGameOver = false
 
 
 
@@ -187,7 +188,7 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     fun startFalling() {
         Thread {
-            while (true) {
+            while (!isGameOver) {
                 Thread.sleep(speed)
 
                 post {
@@ -229,9 +230,8 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         val newPiece = Piece(randomShape)
         if (!canPlacePiece(newPiece)) {
 
-            val intent = Intent(context, GameOverActivity::class.java)
-            intent.putExtra("score", (level * 100) + score)
-            context.startActivity(intent)
+            isGameOver = true;
+            goToGameOverScreen()
             return
         }
         currentPiece = newPiece
@@ -288,7 +288,7 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         matriz = newMatriz
 
         if (linesCleared > 0) {
-            val pointsEarned = linesCleared * 10
+            val pointsEarned = linesCleared * linesCleared * 10
             score += pointsEarned
             scoreUpdateListener?.onScoreUpdated(score)
             if (score >= 100) {
@@ -303,6 +303,8 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     }
 
      fun restart(){
+
+         isGameOver = false
         matriz = arrayListOf<ArrayList<Int>>().apply {
             repeat(rows) {
                 add(ArrayList(IntArray(cols) { 0 }.toList()))
@@ -316,12 +318,15 @@ class Board(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         levelUpdateListener?.onLevelUpdated(level)
         invalidate()
 
-    }
+     }
 
     fun goToGameOverScreen(){
         val intent = Intent(context, GameOverActivity::class.java)
-        intent.putExtra("score", (level * 100) + score)
+        intent.putExtra("score", (level * 100) + score - 100)
         context.startActivity(intent)
+        if (context is Activity) {
+            (context as Activity).finish()
+        }
 
     }
 

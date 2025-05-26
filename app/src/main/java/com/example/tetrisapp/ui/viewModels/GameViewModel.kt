@@ -16,6 +16,4 @@ class GameViewModel: ViewModel() {
     fun setScore(score: Long){
         _score.value = score
     }
-
-
 }
